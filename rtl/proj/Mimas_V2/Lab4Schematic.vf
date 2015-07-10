@@ -1,0 +1,66 @@
+////////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+////////////////////////////////////////////////////////////////////////////////
+//   ____  ____ 
+//  /   /\/   / 
+// /___/  \  /    Vendor: Xilinx 
+// \   \   \/     Version : 14.7
+//  \   \         Application : sch2hdl
+//  /   /         Filename : Lab4Schematic.vf
+// /___/   /\     Timestamp : 07/10/2015 10:09:11
+// \   \  /  \ 
+//  \___\/\___\ 
+//
+//Command: sch2hdl -sympath C:/lab4/trunk/rtl/proj/Mimas_V2/ipcore_dir -intstyle ise -family spartan6 -verilog C:/lab4/trunk/rtl/proj/Mimas_V2/Lab4Schematic.vf -w C:/lab4/trunk/rtl/proj/Mimas_V2/Lab4Schematic.sch
+//Design Name: Lab4Schematic
+//Device: spartan6
+//Purpose:
+//    This verilog netlist is translated from an ECS schematic.It can be 
+//    synthesized and simulated, but it should not be modified. 
+//
+`timescale 1ns / 1ps
+
+module Lab4Schematic(AC97BitClock, 
+                     AC97SDI, 
+                     Button1, 
+                     Button2, 
+                     Button3, 
+                     CLK, 
+                     DPSwitch, 
+                     AC97Rstn, 
+                     AC97SDO, 
+                     AC97Sync, 
+                     LED);
+
+    input AC97BitClock;
+    input AC97SDI;
+    input Button1;
+    input Button2;
+    input Button3;
+    input CLK;
+    input [7:0] DPSwitch;
+   output AC97Rstn;
+   output AC97SDO;
+   output AC97Sync;
+   output [7:0] LED;
+   
+   wire clk_27mhz;
+   
+   lab4  XLXI_1 (.ac97_bit_clock(AC97BitClock), 
+                .ac97_sdata_in(AC97SDI), 
+                .button_down(Button2), 
+                .button_enter(Button3), 
+                .button_up(Button1), 
+                .clock_27mhz(clk_27mhz), 
+                .switch(DPSwitch[7:0]), 
+                .ac97_sdata_out(AC97SDO), 
+                .ac97_synch(AC97Sync), 
+                .analyzer1_clock(), 
+                .analyzer1_data(), 
+                .analyzer3_clock(), 
+                .analyzer3_data(), 
+                .audio_reset_b(AC97Rstn), 
+                .led(LED[7:0]));
+   clock_100MHz_27MHz  XLXI_2 ((CLK), 
+                              (clk_27mhz));
+endmodule
