@@ -1,0 +1,2 @@
+verilog work ../../clock_100MHz_27MHz.v
+verilog work ../example_design/clock_100MHz_27MHz_exdes.v
