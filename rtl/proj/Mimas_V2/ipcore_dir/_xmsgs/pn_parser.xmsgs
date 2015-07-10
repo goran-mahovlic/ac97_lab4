@@ -8,7 +8,7 @@
 <!-- Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.    -->
 
 <messages>
-<msg type="info" file="ProjectMgmt" num="1845" ><arg fmt="%s" index="1">Analyzing Verilog file &quot;C:/ac97_lab4.git/trunk/rtl/Mimas_V2/project/ipcore_dir/clock_100MHz_27MHz.v&quot; into library work</arg>
+<msg type="info" file="ProjectMgmt" num="1845" ><arg fmt="%s" index="1">Analyzing Verilog file &quot;C:/lab4/trunk/rtl/proj/Mimas_V2/ipcore_dir/clock_100MHz_27MHz.v&quot; into library work</arg>
 </msg>
 
 </messages>
