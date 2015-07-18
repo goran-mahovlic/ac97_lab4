@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <report-views version="2.0" >
  <header>
-  <DateModified>2015-07-10T10:27:10</DateModified>
+  <DateModified>2015-07-19T01:18:43</DateModified>
   <ModuleName>Lab4Schematic</ModuleName>
-  <SummaryTimeStamp>2015-07-10T10:24:01</SummaryTimeStamp>
-  <SavedFilePath>C:/lab4/trunk/rtl/proj/Mimas_V2/iseconfig/Lab4Schematic.xreport</SavedFilePath>
-  <ImplementationReportsDirectory>C:/lab4/trunk/rtl/proj/Mimas_V2\</ImplementationReportsDirectory>
+  <SummaryTimeStamp>2015-07-19T01:15:13</SummaryTimeStamp>
+  <SavedFilePath>C:/ac97_lab4.git/trunk/rtl/proj/Mimas_V2/iseconfig/Lab4Schematic.xreport</SavedFilePath>
+  <ImplementationReportsDirectory>C:/ac97_lab4.git/trunk/rtl/proj/Mimas_V2\</ImplementationReportsDirectory>
   <DateInitialized>2015-07-10T10:01:32</DateInitialized>
   <EnableMessageFiltering>false</EnableMessageFiltering>
  </header>

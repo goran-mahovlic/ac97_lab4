@@ -377,113 +377,27 @@ endmodule
 // For Labkit Revision 004
 // Created: October 31, 2004, from revision 003 file
 // Author: Nathan Ickes, 6.111 staff
-//
+// Edited by Goran Mahovlic
 ///////////////////////////////////////////////////////////////////////////////
 
 module lab4(
-  // Remove comment from any signals you use in your design!
 
   // AC97
   output wire /*beep,*/ audio_reset_b, ac97_synch, ac97_sdata_out,
   input wire ac97_bit_clock, ac97_sdata_in,
 	
-  // VGA
-  /*
-  output wire [7:0] vga_out_red, vga_out_green, vga_out_blue,
-  output wire vga_out_sync_b, vga_out_blank_b, vga_out_pixel_clock, vga_out_hsync, vga_out_vsync,
-  */
 
-  // NTSC OUT
-  /*
-  output wire [9:0] tv_out_ycrcb,
-  output wire tv_out_reset_b, tv_out_clock, tv_out_i2c_clock, tv_out_i2c_data,
-  output wire tv_out_pal_ntsc, tv_out_hsync_b, tv_out_vsync_b, tv_out_blank_b,
-  output wire tv_out_subcar_reset;
-  */
 
-  // NTSC IN
-  /*
-  input wire [19:0] tv_in_ycrcb,
-  input wire tv_in_data_valid, tv_in_line_clock1, tv_in_line_clock2, tv_in_aef, tv_in_hff, tv_in_aff,
-  output wire tv_in_i2c_clock, tv_in_fifo_read, tv_in_fifo_clock, tv_in_iso, tv_in_reset_b, tv_in_clock,
-  inout wire tv_in_i2c_data,
-  */
-
-  // ZBT RAMS
-  /*
-  inout wire [35:0] ram0_data,
-  output wire [18:0] ram0_address,
-  output wire ram0_adv_ld, ram0_clk, ram0_cen_b, ram0_ce_b, ram0_oe_b, ram0_we_b,
-  output wire [3:0] ram0_bwe_b,
-  inout wire [35:0]ram1_data,
-  output wire [18:0]ram1_address,
-  output wire ram1_adv_ld, ram1_clk, ram1_cen_b, ram1_ce_b, ram1_oe_b, ram1_we_b,
-  output wire [3:0] ram1_bwe_b,
-  input  wire clock_feedback_in,
-  output wire clock_feedback_out,
-  */
-
-  // FLASH
-  /*
-  inout wire [15:0] flash_data,
-  output wire [23:0] flash_address,
-  output wire flash_ce_b, flash_oe_b, flash_we_b, flash_reset_b, flash_byte_b,
-  input wire flash_sts,
-  */
-   
-  // RS232
-  /*
-  output wire rs232_txd, rs232_rts,
-  input wire rs232_rxd, rs232_cts,
-  */
-
-  // PS2
-  /*
-  input wire mouse_clock, mouse_data, keyboard_clock, keyboard_data,
-  */
-
-  // FLUORESCENT DISPLAY
-  /*
-  output wire disp_blank, disp_clock, disp_rs, disp_ce_b, disp_reset_b,
-  input wire disp_data_in,
-  output wire disp_data_out,
-  */
-
-  // BUTTONS, SWITCHES, LEDS
-  //input wire button0,
-  //input wire button1,
-  //input wire button2,
-  //input wire button3,
   input wire button_enter,
-  //input wire button_right,
-  //input wire button_left,
   input wire button_down,
   input wire button_up,
   input wire [7:0] switch,
   output wire [7:0] led,
 
-  // USER CONNECTORS, DAUGHTER CARD, LOGIC ANALYZER
-  //inout wire [31:0] user1,
-  //inout wire [31:0] user2,
-  //inout wire [31:0] user3,
-  //inout wire [31:0] user4,
-  //inout wire [43:0] daughtercard,
+
   output wire [15:0] analyzer1_data, output wire analyzer1_clock,
-  //output wire [15:0] analyzer2_data, output wire analyzer2_clock,
   output wire [15:0] analyzer3_data, output wire analyzer3_clock,
-  //output wire [15:0] analyzer4_data, output wire analyzer4_clock,
 
-  // SYSTEM ACE
-  /*
-  inout wire [15:0] systemace_data,
-  output wire [6:0] systemace_address,
-  output wire systemace_ce_b, systemace_we_b, systemace_oe_b,
-  input wire systemace_irq, systemace_mpbrdy,
-  */
-
-  // CLOCKS
-  //input wire clock1,
-  //input wire clock2,
   input wire clock_27mhz
 );
    ////////////////////////////////////////////////////////////////////////////
@@ -569,14 +483,99 @@ module recorder(
 );  
    // test: playback 750hz tone, or loopback using incoming data
    wire [19:0] tone;
+	reg [15:0] addr;		//addr of memory
+	reg tog = 0;				//register indicating if switching from
+	//record to playback or vice versa
+	reg [3:0] count =8;	//counter for saving adc value
    tone750hz xxx(.clock(clock),.ready(ready),.pcm_data(tone));
-
-   always @ (posedge clock) begin
-      if (ready) begin
-	 // get here when we've just received new data from the AC97
-	 to_ac97_data <= playback ? tone[19:12] : from_ac97_data;
-      end
+	reg [15:0] high;		//the recording highest address
+	wire signed [7:0] filter_input;	//filter input
+	wire [7:0] mem_input;
+	wire signed [17:0] filter_output;
+	wire [7:0] mem_output;
+//	reg [3:0] zerocount = 0;
+	
+	assign filter_input = playback? ((count==8)?mem_output : 0)
+	:from_ac97_data; //assign filter_input according to different setting
+	assign mem_input = filter ? filter_output[17:10] : from_ac97_data;
+	//assign mem_input according to different setting
+	always @ (posedge clock) begin
+		if (reset)	//when reset, setback everything
+			begin
+			count<=8;
+			tog<=0;
+			addr<=0;
+			end
+		else
+		begin
+			if (playback)	//when in play back
+			begin
+				
+				to_ac97_data <= filter?filter_output[14:7]:mem_output;
+				//assign to_ac97_data according to the setting
+				if(playback+tog)	//if just switing from recording to playback
+				begin			
+					high<=addr;	//reset everything
+					tog<=1;
+					addr<=0;
+					count<=8;
+				end
+				else
+				begin
+					if (ready)		//if a bit come
+					begin
+						if (addr<=high)	//if address is not the highest
+						begin
+							if(count==8)	//only when count = 8, addr increments
+							begin
+								addr<=addr+1;
+								count<=0;		
+							end
+							else
+								count<=count+1;
+						end
+						else				//when address is the highest, reset
+						addr<=0;
+					end
+				end
+			end
+			else							//if record
+			begin
+			to_ac97_data <= mem_input;	//set to_ac97_data according to mem_input
+				if(playback+tog)				//if just switiching from playback to record
+				begin							//reset value
+					tog<=0;
+					addr<=0;
+					count<=8;
+				end
+				else
+				begin							
+					if (ready)			//if there is a new value
+					begin
+//						
+						if (addr+1>addr)	//if not reaching max
+						begin
+							if(count==8)		//increment addr every 8 samples
+							begin
+								addr<=addr+1;
+								count<=0;
+							end
+							else
+								count<=count+1;
+						end
+					end
+				end
+			end
+		end
+						
    end
+	
+	mybram #(.LOGSIZE(16),.WIDTH(8)) bram(.addr(addr),.clk(clock)
+	,.we(~playback),.din(mem_input),.dout(mem_output));
+	//setup mybram 64K x 8
+	fir31 fir(.clock(clock),.reset(reset),.ready(ready),.x(filter_input)
+	,.y(filter_output));
+	//setup the filter
 endmodule
 
 ///////////////////////////////////////////////////////////////////////////////
