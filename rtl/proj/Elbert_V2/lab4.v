@@ -461,7 +461,7 @@ module recorder(
 						
    end
 	
-	mybram #(.LOGSIZE(8),.WIDTH(8)) bram(.addr(addr),.clk(clock)
+	mybram #(.LOGSIZE(14),.WIDTH(2)) bram(.addr(addr),.clk(clock)
 	,.we(~playback),.din(mem_input),.dout(mem_output));
 	//setup mybram 64K x 8
 	fir31 fir(.clock(clock),.reset(reset),.ready(ready),.x(filter_input)
